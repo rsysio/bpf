@@ -1,10 +1,13 @@
 from bcc import BPF
 
-code = '''
-int kprobe__sys_connect(void *ctx) {
+prog = '''
+int hello(void *ctx) {
     bpf_trace_printk("connected!\\n");
     return 0;
 }
 '''
+b = BPF(text=prog)
 
-BPF(text=code).trace_print()
+b.attach_kprobe(event=b.get_syscall_fnname("connect"), fn_name="hello")
+
+b.trace_print()
